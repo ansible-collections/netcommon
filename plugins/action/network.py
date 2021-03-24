@@ -30,7 +30,6 @@ from ansible.module_utils.six.moves.urllib.parse import urlsplit
 from ansible.plugins.action.normal import ActionModule as _ActionModule
 from ansible.utils.display import Display
 from ansible.module_utils.six import PY3
-from ansible.module_utils.connection import Connection
 
 display = Display()
 
@@ -109,7 +108,6 @@ class ActionModule(_ActionModule):
 
         filename = None
         backup_path = None
-
         try:
             content = self._sanitize_contents(
                 contents=result["__backup__"],
