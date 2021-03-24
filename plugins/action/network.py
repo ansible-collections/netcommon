@@ -30,6 +30,7 @@ from ansible.module_utils.six.moves.urllib.parse import urlsplit
 from ansible.plugins.action.normal import ActionModule as _ActionModule
 from ansible.utils.display import Display
 from ansible.module_utils.six import PY3
+from ansible.module_utils.connection import Connection
 
 display = Display()
 
@@ -108,8 +109,12 @@ class ActionModule(_ActionModule):
 
         filename = None
         backup_path = None
+
         try:
-            content = result["__backup__"]
+            content = self._sanitize_contents(
+                contents=result["__backup__"],
+                filters=result["__non_config_lines__"],
+            )
         except KeyError:
             raise AnsibleError("Failed while reading configuration backup")
 
@@ -411,3 +416,11 @@ class ActionModule(_ActionModule):
             data["stderr_lines"] = txt.splitlines()
 
         return data
+
+    def _sanitize_contents(self, contents, filters):
+        """ remove lines from contents that match
+        regexes specified in the `filters` list
+        """
+        for x in filters:
+            contents = re.sub(x, "", contents)
+        return contents.strip()
