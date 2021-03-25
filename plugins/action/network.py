@@ -111,7 +111,7 @@ class ActionModule(_ActionModule):
         try:
             content = self._sanitize_contents(
                 contents=result["__backup__"],
-                filters=result["__non_config_lines__"],
+                filters=result.get("__non_config_lines__", []),
             )
         except KeyError:
             raise AnsibleError("Failed while reading configuration backup")
