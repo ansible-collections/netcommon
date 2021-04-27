@@ -512,6 +512,11 @@ class Connection(NetworkConnectionBase):
         else:
             return super(Connection, self).exec_command(cmd, in_data, sudoable)
 
+    def get_options(self, hostvars=None):
+        options = super(Connection, self).get_options(hostvars=hostvars)
+        options.update(self.ssh_type_conn.get_options(hostvars=hostvars))
+        return options
+
     def set_options(self, task_keys=None, var_options=None, direct=None):
         super(Connection, self).set_options(
             task_keys=task_keys, var_options=var_options, direct=direct
