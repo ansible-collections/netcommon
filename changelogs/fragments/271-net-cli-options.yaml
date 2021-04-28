@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - network_cli - Fix acquiring options inherited from paramiko/libssh in ansible >= 2.11
