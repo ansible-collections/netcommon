@@ -546,11 +546,6 @@ class Connection(NetworkConnectionBase):
                 self.queue_message("vvvv", "deauthorizing connection")
 
         self._play_context = play_context
-        if self._ssh_type_conn is not None:
-            # TODO: This works, but is not really ideal. We would rather use
-            #       set_options, but then we need more custom handling in that
-            #       method.
-            self._ssh_type_conn._play_context = play_context
 
         if hasattr(self, "reset_history"):
             self.reset_history()
