@@ -404,40 +404,40 @@ class Connection(NetworkConnectionBase):
 
         self._single_user_mode = False
 
-        if self._network_os:
-            self._terminal = terminal_loader.get(self._network_os, self)
-            if not self._terminal:
-                raise AnsibleConnectionFailure(
-                    "network os %s is not supported" % self._network_os
-                )
-
-            self.cliconf = cliconf_loader.get(self._network_os, self)
-            if self.cliconf:
-                self._sub_plugin = {
-                    "type": "cliconf",
-                    "name": self.cliconf._load_name,
-                    "obj": self.cliconf,
-                }
-                self.queue_message(
-                    "vvvv",
-                    "loaded cliconf plugin %s from path %s for network_os %s"
-                    % (
-                        self.cliconf._load_name,
-                        self.cliconf._original_path,
-                        self._network_os,
-                    ),
-                )
-            else:
-                self.queue_message(
-                    "vvvv",
-                    "unable to load cliconf for network_os %s"
-                    % self._network_os,
-                )
-        else:
+        if not self._network_os:
             raise AnsibleConnectionFailure(
                 "Unable to automatically determine host network os. Please "
                 "manually configure ansible_network_os value for this host"
             )
+
+        self._terminal = terminal_loader.get(self._network_os, self)
+        if not self._terminal:
+            raise AnsibleConnectionFailure(
+                "network os %s is not supported" % self._network_os
+            )
+
+        self.cliconf = cliconf_loader.get(self._network_os, self)
+        if self.cliconf:
+            self._sub_plugin = {
+                "type": "cliconf",
+                "name": self.cliconf._load_name,
+                "obj": self.cliconf,
+            }
+            self.queue_message(
+                "vvvv",
+                "loaded cliconf plugin %s from path %s for network_os %s"
+                % (
+                    self.cliconf._load_name,
+                    self.cliconf._original_path,
+                    self._network_os,
+                ),
+            )
+        else:
+            self.queue_message(
+                "vvvv",
+                "unable to load cliconf for network_os %s" % self._network_os,
+            )
+
         self.queue_message("log", "network_os is set to %s" % self._network_os)
 
     @property
