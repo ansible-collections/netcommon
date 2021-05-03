@@ -108,11 +108,14 @@ class ActionModule(_ActionModule):
 
         filename = None
         backup_path = None
+        network_os = self._get_network_os(task_vars)
         try:
             content = self._sanitize_contents(
                 contents=result["__backup__"],
-                filters=task_vars.get(
-                    "ansible_network_non_config_regexes", []
+                filters=getattr(
+                    self._connection,
+                    "ansible_{0}_non_config_regexes".format(network_os),
+                    [],
                 ),
             )
         except KeyError:
