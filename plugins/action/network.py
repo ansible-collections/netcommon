@@ -109,11 +109,14 @@ class ActionModule(_ActionModule):
         filename = None
         backup_path = None
         try:
+            non_config_regexes = self._connection.cliconf.get_option(
+                "non_config_lines", task_vars
+            )
+        except KeyError:
+            non_config_regexes = []
+        try:
             content = self._sanitize_contents(
-                contents=result["__backup__"],
-                filters=self._connection.cliconf.get_option(
-                    "non_config_lines", []
-                ),
+                contents=result["__backup__"], filters=non_config_regexes
             )
         except KeyError:
             raise AnsibleError("Failed while reading configuration backup")
