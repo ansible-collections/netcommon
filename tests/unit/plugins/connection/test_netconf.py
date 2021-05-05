@@ -39,6 +39,7 @@ PY3 = sys.version_info[0] == 3
 builtin_import = __import__
 
 mock_ncclient = MagicMock(name="ncclient")
+mock_ncclient.__version__ = "0.6.10"
 
 
 def import_mock(name, *args):

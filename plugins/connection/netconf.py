@@ -141,6 +141,15 @@ options:
     - name: ANSIBLE_PERSISTENT_CONNECT_TIMEOUT
     vars:
     - name: ansible_connect_timeout
+  proxy_command:
+    default: ''
+    description:
+      - Proxy information for running the connection via a jumphost.
+      - This requires ncclient >= 0.6.10 to be installed on the controller.
+    env:
+      - name: ANSIBLE_NETCONF_PROXY_COMMAND
+    ini:
+      - {key: proxy_command, section: paramiko_connection}
   persistent_command_timeout:
     type: int
     description:
@@ -203,8 +212,10 @@ from ansible.module_utils.parsing.convert_bool import (
 from ansible.playbook.play_context import PlayContext
 from ansible.plugins.loader import netconf_loader
 from ansible.plugins.connection import NetworkConnectionBase, ensure_connect
+from distutils.version import LooseVersion
 
 try:
+    from ncclient import __version__ as NCCLIENT_VERSION
     from ncclient import manager
     from ncclient.operations import RPCError
     from ncclient.transport.errors import (
@@ -212,6 +223,7 @@ try:
         SSHUnknownHostError,
     )
     from ncclient.xml_ import to_ele, to_xml
+    from paramiko import ProxyCommand
 
     HAS_NCCLIENT = True
     NCCLIENT_IMP_ERR = None
@@ -315,6 +327,34 @@ class Connection(NetworkConnectionBase):
     def manager(self):
         return self._manager
 
+    def _get_proxy_command(self, port=22):
+        proxy_command = None
+        sock_kwarg = {}
+
+        # TO-DO: Add logic to scan ssh_* args to read ProxyCommand
+
+        proxy_command = proxy_command or self.get_option("proxy_command")
+
+        if proxy_command:
+            if LooseVersion(NCCLIENT_VERSION) < LooseVersion("0.6.10"):
+                raise AnsibleError(
+                    "Configuring jumphost settings through ProxyCommand is unsupported in ncclient version %s. "
+                    "Please upgrade to ncclient 0.6.10 or newer."
+                    % NCCLIENT_VERSION
+                )
+
+            replacers = {
+                "%h": self._play_context.remote_addr,
+                "%p": port,
+                "%r": self._play_context.remote_user,
+            }
+
+            for find, replace in replacers.items():
+                proxy_command = proxy_command.replace(find, str(replace))
+            sock_kwarg = {"sock": ProxyCommand(proxy_command)}
+
+        return sock_kwarg
+
     def _connect(self):
         if not HAS_NCCLIENT:
             raise AnsibleError(
@@ -390,6 +430,11 @@ class Connection(NetworkConnectionBase):
                     self._ssh_config,
                 ),
             )
+
+            netconf_connect_kwargs = {}
+
+            netconf_connect_kwargs.update(self._get_proxy_command(port))
+
             self._manager = manager.connect(
                 host=self._play_context.remote_addr,
                 port=port,
@@ -402,6 +447,7 @@ class Connection(NetworkConnectionBase):
                 allow_agent=self._play_context.allow_agent,
                 timeout=self.get_option("persistent_connect_timeout"),
                 ssh_config=self._ssh_config,
+                **netconf_connect_kwargs,
             )
 
             self._manager._timeout = self.get_option(
