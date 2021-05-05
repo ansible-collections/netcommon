@@ -147,6 +147,8 @@ Parameters
                                     <p>[libssh_connection]<br>proxy_command = </p>
                             </div>
                                 <div>env:ANSIBLE_LIBSSH_PROXY_COMMAND</div>
+                                <div>var: ansible_paramiko_proxy_command</div>
+                                <div>var: ansible_libssh_proxy_command</div>
                     </td>
                 <td>
                         <div>Proxy information for running the connection via a jumphost</div>

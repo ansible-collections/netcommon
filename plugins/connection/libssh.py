@@ -69,6 +69,9 @@ DOCUMENTATION = """
         env: [{name: ANSIBLE_LIBSSH_PROXY_COMMAND}]
         ini:
           - {key: proxy_command, section: libssh_connection}
+        vars:
+          - name: ansible_paramiko_proxy_command
+          - name: ansible_libssh_proxy_command
       pty:
         default: True
         description: 'TODO: write it'
