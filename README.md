@@ -111,6 +111,38 @@ Name | Description
 [ansible.netcommon.restconf_get](https://github.com/ansible-collections/ansible.netcommon/blob/main/docs/ansible.netcommon.restconf_get_module.rst)|Fetch configuration/state data from RESTCONF enabled devices.
 [ansible.netcommon.telnet](https://github.com/ansible-collections/ansible.netcommon/blob/main/docs/ansible.netcommon.telnet_module.rst)|Executes a low-down and dirty telnet command
 
+### Test plugins
+Name | Description
+--- | ---
+ansible.netcommon.disabled|Case insensitive test for `disabled`<br/>`interface.ip_redirects is ansible.netcommon.disabled`
+ansible.netcommon.down|Case insensitive test for `down`<br/>`interface.oper_state is ansible.netcommon.down`
+ansible.netcommon.enabled|Case insensitive test for `enabled`<br/>`interface.bpdu_guard is ansible.netcommon.enabled`
+ansible.netcommon.in_any_network|Test if an IP or network is in any network<br/>`'10.1.1.1' is ansible.netcommon.in_any_network ['10.0.0.0/8', '192.168.1.0/24']`
+ansible.netcommon.in_network|Test if an address or network is in a network<br/>`'10.1.1.1' is ansible.netcommon.in_network '10.0.0.0/8'`
+ansible.netcommon.in_one_network|Test if an IP or network is in one network<br/>`'10.1.1.1' is ansible.netcommon.in_one_network ['10.0.0.0/8', '192.168.1.0/24']`
+ansible.netcommon.ip|Test if something in an IP address or network<br/>`'10.1.1.1' is ansible.netcommon.ip`
+ansible.netcommon.ip_address|Test if something in an IP address<br/>`'10.1.1.1' is ansible.netcommon.ip_address`
+ansible.netcommon.ipv4|Test if something in an IPv4 address or network<br/>`'10.0.0.0/8' is ansible.netcommon.ipv4`
+ansible.netcommon.ipv4_address|Test if something in an IPv4 address<br/>`'10.1.1.1' is ansible.netcommon.ipv4_address`
+ansible.netcommon.ipv4_hostmask|Test if an address is a hostmask<br/>`'0.0.0.255' is ansible.netcommon.ipv4_hostmask`
+ansible.netcommon.ipv4_netmask|Test for a valid IPv4 netmask<br/>`'255.255.255.0' is ansible.netcommon.ipv4_netmask`
+ansible.netcommon.ipv6|Test if something is an IPv6 address or network<br/>`'2001:db8:a::123/64' is ansible.netcommon.ipv6`
+ansible.netcommon.ipv6_address|Test if something is an IPv6 address<br/>`'fe80::216:3eff:fee4:16f3' is ansible.netcommon.ipv6_address`
+ansible.netcommon.ipv6_ipv4_mapped|Test if something appears to be a mapped IPv6 to IPv4 mapped address<br/>`'::FFFF:10.1.1.1'' is ansible.netcommon.ipv4_ipv4_mapped`
+ansible.netcommon.ipv6_sixtofour|Test if something appears to be a 6to4 address<br/>`'2002:c0a8:6301:1::1' is ansible.netcommon.ipv6_sixtofour`
+ansible.netcommon.ipv6_teredo|Test if something is an IPv6 teredo address<br/>`'2001::c0a8:6301:1' is ansible.netcommon.ipv6_teredo`
+ansible.netcommon.loopback|Test if an IP address is a loopback<br/>`'127.10.10.10' is ansible.netcommon.loopback`
+ansible.netcommon.mac|Test if something appears to be a valid mac address<br/>`'02:16:3e:e4:16:f3' is ansible.netcommon.mac`'
+ansible.netcommon.multicast|Test for a multicast IP address<br/>`'224.0.0.1' is ansible.netcommon.multicast`
+ansible.netcommon.private|Test if an IP address is private<br/>`'10.1.1.1' is ansible.netcommon.private`
+ansible.netcommon.public|Test if an IP address is public<br/>`'8.8.8.8' is ansible.netcommon.public`
+ansible.netcommon.reserved|Test for a reserved IP address<br/>`'253.0.0.1' is ansible.netcommon.reserved`
+ansible.netcommon.resolvable|Test if an IP or name can be resolved via /etc/hosts or DNS<br/>`'docs.ansible.com' is ansible.netcommon.resolvable`
+ansible.netcommon.subnet_of|Test if a network is a subnet of another network<br/>`'10.1.1.0/24' is ansible.netcommon.subnet_of '10.0.0.0/8'`
+ansible.netcommon.supernet_of|Test if an network is a supernet of another network<br/>`'10.0.0.0/8' is ansible.netcommon.supernet_of '10.1.1.0/24'`
+ansible.netcommon.unspecified|Test for a unicast IP address<br/>`'0.0.0.0' is ansible.netcommon.unspecifed`
+ansible.netcommon.up|Case insensitve test for `up`<br/>`interface.admin_state is ansible.netcommon.up`
+
 <!--end collection content-->
 
 
