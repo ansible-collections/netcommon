@@ -1,0 +1,3 @@
+---
+trivial:
+  - Replace uses of internal attribute _CHECK_ARGUMENT_TYPES_DISPATCHER with the public interface get_type_validator
