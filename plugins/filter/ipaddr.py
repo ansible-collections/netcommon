@@ -1135,6 +1135,30 @@ def ip4_hex(arg, delimiter=""):
         *numbers, sep=delimiter
     )
 
+def hex_ip4(arg, delimiter="."):
+    """ Convert hexadecimal notation IPv4 address given as a string to decimal notation """
+    # if it's not an 8 character string it's not a representation of an ipv4 address
+    if not isinstance(arg, str) or len(arg) < 8:
+        raise errors.AnsibleFilterError(
+                "%s is not a valid IPv4 address representation." % arg
+            )
+    else:
+        split_str = ["".join(x) for x in zip(*[list(arg[z::2]) for z in range(2)])]
+        # check if every item in split_str is a valid hex number
+        try:
+            unhexed = delimiter.join([str(int(x, 16)) for x in split_str])
+            if netaddr.valid_ipv4(unhexed):
+                return unhexed
+            else:
+               raise errors.AnsibleFilterError(
+                "%s is not a valid IPv4 address representation." % arg
+            ) 
+        except ValueError:
+            raise errors.AnsibleFilterError(
+                "%s is not a valid IPv4 address representation." % arg
+            )
+
+
 
 # ---- Ansible filters ----
 class FilterModule(object):
@@ -1150,6 +1174,7 @@ class FilterModule(object):
         "ipmath": ipmath,
         "ipwrap": ipwrap,
         "ip4_hex": ip4_hex,
+        "hex_ip4": hex_ip4,
         "ipv4": ipv4,
         "ipv6": ipv6,
         "ipsubnet": ipsubnet,

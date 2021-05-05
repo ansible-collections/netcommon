@@ -895,3 +895,7 @@ class TestIpFilter(unittest.TestCase):
     def test_ip4_hex(self):
         self.assertEqual(ipaddr.ip4_hex("192.0.2.24"), "c0000218")
         self.assertEqual(ipaddr.ip4_hex("192.0.2.24", "."), "c0.00.02.18")
+
+    def test_hex_ip4(self):
+        self.assertEqual(ipaddr.ip4_hex("c0000218"), "192.0.2.24")
+        self.assertEqual(ipaddr.ip4_hex("c0000218", ":"), "192:0:2:24")
