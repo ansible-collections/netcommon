@@ -404,40 +404,40 @@ class Connection(NetworkConnectionBase):
 
         self._single_user_mode = False
 
-        if self._network_os:
-            self._terminal = terminal_loader.get(self._network_os, self)
-            if not self._terminal:
-                raise AnsibleConnectionFailure(
-                    "network os %s is not supported" % self._network_os
-                )
-
-            self.cliconf = cliconf_loader.get(self._network_os, self)
-            if self.cliconf:
-                self._sub_plugin = {
-                    "type": "cliconf",
-                    "name": self.cliconf._load_name,
-                    "obj": self.cliconf,
-                }
-                self.queue_message(
-                    "vvvv",
-                    "loaded cliconf plugin %s from path %s for network_os %s"
-                    % (
-                        self.cliconf._load_name,
-                        self.cliconf._original_path,
-                        self._network_os,
-                    ),
-                )
-            else:
-                self.queue_message(
-                    "vvvv",
-                    "unable to load cliconf for network_os %s"
-                    % self._network_os,
-                )
-        else:
+        if not self._network_os:
             raise AnsibleConnectionFailure(
                 "Unable to automatically determine host network os. Please "
                 "manually configure ansible_network_os value for this host"
             )
+
+        self._terminal = terminal_loader.get(self._network_os, self)
+        if not self._terminal:
+            raise AnsibleConnectionFailure(
+                "network os %s is not supported" % self._network_os
+            )
+
+        self.cliconf = cliconf_loader.get(self._network_os, self)
+        if self.cliconf:
+            self._sub_plugin = {
+                "type": "cliconf",
+                "name": self.cliconf._load_name,
+                "obj": self.cliconf,
+            }
+            self.queue_message(
+                "vvvv",
+                "loaded cliconf plugin %s from path %s for network_os %s"
+                % (
+                    self.cliconf._load_name,
+                    self.cliconf._original_path,
+                    self._network_os,
+                ),
+            )
+        else:
+            self.queue_message(
+                "vvvv",
+                "unable to load cliconf for network_os %s" % self._network_os,
+            )
+
         self.queue_message("log", "network_os is set to %s" % self._network_os)
 
     @property
@@ -457,15 +457,6 @@ class Connection(NetworkConnectionBase):
 
             self._ssh_type_conn = connection_loader.get(
                 self._ssh_type, self._play_context, "/dev/null"
-            )
-            self._ssh_type_conn.set_options(
-                direct={
-                    "look_for_keys": not bool(
-                        self._play_context.password
-                        and not self._play_context.private_key_file
-                    ),
-                    "host_key_checking": self.get_option("host_key_checking"),
-                }
             )
             self.queue_message(
                 "vvvv", "ssh type is set to %s" % self.get_option("ssh_type")
@@ -521,6 +512,19 @@ class Connection(NetworkConnectionBase):
         else:
             return super(Connection, self).exec_command(cmd, in_data, sudoable)
 
+    def get_options(self, hostvars=None):
+        options = super(Connection, self).get_options(hostvars=hostvars)
+        options.update(self.ssh_type_conn.get_options(hostvars=hostvars))
+        return options
+
+    def set_options(self, task_keys=None, var_options=None, direct=None):
+        super(Connection, self).set_options(
+            task_keys=task_keys, var_options=var_options, direct=direct
+        )
+        self.ssh_type_conn.set_options(
+            task_keys=task_keys, var_options=var_options, direct=direct
+        )
+
     def update_play_context(self, pc_data):
         """Updates the play context information for the connection"""
         pc_data = to_bytes(pc_data)
@@ -542,11 +546,6 @@ class Connection(NetworkConnectionBase):
                 self.queue_message("vvvv", "deauthorizing connection")
 
         self._play_context = play_context
-        if self._ssh_type_conn is not None:
-            # TODO: This works, but is not really ideal. We would rather use
-            #       set_options, but then we need more custom handling in that
-            #       method.
-            self._ssh_type_conn._play_context = play_context
 
         if hasattr(self, "reset_history"):
             self.reset_history()

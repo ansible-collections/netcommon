@@ -213,35 +213,34 @@ class Connection(NetworkConnectionBase):
 
         self._auth = None
 
-        if self._network_os:
-
-            self.httpapi = httpapi_loader.get(self._network_os, self)
-            if self.httpapi:
-                self._sub_plugin = {
-                    "type": "httpapi",
-                    "name": self.httpapi._load_name,
-                    "obj": self.httpapi,
-                }
-                self.queue_message(
-                    "vvvv",
-                    "loaded API plugin %s from path %s for network_os %s"
-                    % (
-                        self.httpapi._load_name,
-                        self.httpapi._original_path,
-                        self._network_os,
-                    ),
-                )
-            else:
-                raise AnsibleConnectionFailure(
-                    "unable to load API plugin for network_os %s"
-                    % self._network_os
-                )
-
-        else:
+        if not self._network_os:
             raise AnsibleConnectionFailure(
                 "Unable to automatically determine host network os. Please "
                 "manually configure ansible_network_os value for this host"
             )
+
+        self.httpapi = httpapi_loader.get(self._network_os, self)
+        if not self.httpapi:
+            raise AnsibleConnectionFailure(
+                "unable to load API plugin for network_os %s"
+                % self._network_os
+            )
+
+        self._sub_plugin = {
+            "type": "httpapi",
+            "name": self.httpapi._load_name,
+            "obj": self.httpapi,
+        }
+        self.queue_message(
+            "vvvv",
+            "loaded API plugin %s from path %s for network_os %s"
+            % (
+                self.httpapi._load_name,
+                self.httpapi._original_path,
+                self._network_os,
+            ),
+        )
+
         self.queue_message("log", "network_os is set to %s" % self._network_os)
 
     @property
